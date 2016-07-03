@@ -1,0 +1,16 @@
+[
+{
+  "modid": "butter",
+  "name": "Butter",
+  "description": "No description. Honestly, I have no idea what this mod is.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Tbsc"],
+  "credits": "Tbsc for coding, Tbsc for textures, Tbsc for idea and Tbsc for... something else I can't think of",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": ["butter"]
+}
+]
