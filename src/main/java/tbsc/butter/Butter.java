@@ -1,0 +1,35 @@
+/*
+ * Copyright © 2016 Tbsc
+ *
+ * Butter is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Butter is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Butter.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package tbsc.butter;
+
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+
+@Mod(modid = Butter.MODID, version = Butter.VERSION)
+public class Butter {
+
+    public static final String MODID = "butter";
+    public static final String VERSION = "0.0.1.0";
+    
+    @EventHandler
+    public void init(FMLInitializationEvent event) {
+
+    }
+
+}
