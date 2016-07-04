@@ -24,9 +24,9 @@ import net.minecraftforge.fml.common.discovery.ASMDataTable.ASMData;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.common.registry.IForgeRegistryEntry;
 import org.apache.logging.log4j.Level;
-import tbsc.butter.api.IHasCustomModel;
-import tbsc.butter.api.IHasItemBlock;
-import tbsc.butter.api.Register;
+import tbsc.butter.api.loader.IHasCustomModel;
+import tbsc.butter.api.loader.IHasItemBlock;
+import tbsc.butter.api.loader.Register;
 
 import java.lang.reflect.Field;
 import java.util.Set;

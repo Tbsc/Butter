@@ -15,7 +15,7 @@
  * License along with Butter.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tbsc.butter.api;
+package tbsc.butter.api.loader;
 
 import net.minecraft.block.Block;
 
