@@ -19,7 +19,7 @@ package tbsc.butter.proxy;
 
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import tbsc.butter.Butter;
+import tbsc.butter.api.ButterAPI;
 import tbsc.butter.loader.ButterLoader;
 
 /**
@@ -31,10 +31,17 @@ import tbsc.butter.loader.ButterLoader;
  */
 public abstract class CommonProxy implements IProxy {
 
+    /**
+     * Pre init stage of Minecraft lifecycle events.
+     * @param preInit Can be used when wanting to load stuff to specific instances on stage
+     */
     @Override
     public void preInit(FMLPreInitializationEvent preInit) {
-        // Load all classes from ASM data and register them
-        ButterLoader.scanForAnnotations(preInit.getAsmData(), FMLCommonHandler.instance().findContainerFor(Butter.instance));
+        // Loop all registered mods
+        for (String modid : ButterAPI.getRegisteredLoaderModIDs()) {
+            // Load all classes of that mod from ASM data and register them
+            ButterLoader.scanForAnnotations(preInit.getAsmData(), FMLCommonHandler.instance().findContainerFor(modid));
+        }
     }
 
 }

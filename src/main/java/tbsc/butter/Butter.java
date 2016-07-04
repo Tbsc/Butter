@@ -20,10 +20,8 @@ package tbsc.butter;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.*;
+import tbsc.butter.api.ButterAPI;
 import tbsc.butter.proxy.IProxy;
 
 @Mod(modid = Butter.MODID, version = Butter.VERSION)
@@ -37,6 +35,11 @@ public class Butter {
 
     @Mod.Instance
     public static Butter instance;
+
+    @EventHandler
+    public void onConstruction(FMLConstructionEvent event) {
+        ButterAPI.registerModToButterLoader(MODID);
+    }
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {

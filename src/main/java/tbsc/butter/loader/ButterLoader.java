@@ -65,9 +65,9 @@ public class ButterLoader {
                 Field targetField = fieldClass.getDeclaredField(target.getObjectName());
                 // If field doesn't exist (can't really happen)
                 if (targetField == null) { // Can't happen
-                    FMLLog.severe("[Butter] Attempted to register non-existent field? (Class: %s, Field: %s)", target.getClassName(), target.getObjectName());
+                    FMLLog.severe("[Butter] Attempted to register non-existent field? Something is seriously messing with the game! (Class: %s, Field: %s)", target.getClassName(), target.getObjectName());
                     // Throw error
-                    throw new LoaderException(String.format("[Butter] Attempted to register non-existent field? (Class: %s, Field: %s)", target.getClassName(), target.getObjectName()));
+                    throw new LoaderException(String.format("[Butter] Attempted to register non-existent field? Something is seriously messing with the game! (Class: %s, Field: %s)", target.getClassName(), target.getObjectName()));
                 }
                 // Allow access to the field
                 targetField.setAccessible(true);
