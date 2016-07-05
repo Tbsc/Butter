@@ -51,4 +51,10 @@ public interface IHasTileEntity<T extends TileEntity> extends ITileEntityProvide
      */
     Class<T> getTileClass();
 
+    /**
+     * Returns the identifier for the tile entity.
+     * @return Tile identifier
+     */
+    String getTileIdentifier();
+
 }

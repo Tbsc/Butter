@@ -18,9 +18,13 @@
 package tbsc.butter.api;
 
 import net.minecraftforge.fml.common.FMLLog;
+import org.apache.commons.lang3.ArrayUtils;
+import tbsc.butter.api.loader.InstanceLoader;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Main class for the ButterAPI. Has methods for registration and other stuff.
@@ -28,6 +32,8 @@ import java.util.List;
  * Created by tbsc on 04/07/2016.
  */
 public class ButterAPI {
+
+    /* MODS TO BE LOADED */
 
     /**
      * List of mods to be loaded by the butter loader
@@ -50,6 +56,45 @@ public class ButterAPI {
      */
     public static List<String> getRegisteredLoaderModIDs() {
         return butterLoaders;
+    }
+
+    /* LOADER INTERFACES */
+
+    /**
+     * This map matches between an interface's class to an array of instance loaders.
+     * When an instance implements an interface, it checks in this map for the specified
+     * {@link InstanceLoader}s to run for that interface.
+     */
+    private static Map<Class, InstanceLoader[]> instanceLoaders = new HashMap<>();
+
+    /**
+     * Register the specified instance loader the butter loader.
+     * @param interfaceClass When an instance implements interfaces, what interface does the instance need
+     *                       to implement for this instance loader to run.
+     * @param loader The instance loader to run for the interface specified
+     */
+    public static void registerInstanceLoader(Class interfaceClass, InstanceLoader loader) {
+        if (instanceLoaders.containsKey(interfaceClass)) {
+            instanceLoaders.put(interfaceClass, ArrayUtils.add(instanceLoaders.get(interfaceClass), loader));
+        } else {
+            instanceLoaders.put(interfaceClass, new InstanceLoader[] {
+                    loader
+            });
+        }
+        FMLLog.info("[Butter] Received instance loader %s registration request for interface class %s", interfaceClass.getSimpleName(), loader.getClass().getSimpleName());
+    }
+
+    public static Map<Class, InstanceLoader[]> getInstanceLoadersMap() {
+        return instanceLoaders;
+    }
+
+    /**
+     * Get the instance loaders for the interface given.
+     * @param iface The interface to check for
+     * @return Instance loaders for the interface given.
+     */
+    public static InstanceLoader[] getInstanceLoadersForInterface(Class iface) {
+        return instanceLoaders.get(iface);
     }
 
 }

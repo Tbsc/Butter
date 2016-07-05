@@ -17,18 +17,20 @@
 
 package tbsc.butter.loader;
 
-import net.minecraft.block.Block;
-import net.minecraftforge.fml.common.*;
+import net.minecraftforge.fml.common.FMLLog;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.LoaderException;
+import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.discovery.ASMDataTable;
 import net.minecraftforge.fml.common.discovery.ASMDataTable.ASMData;
-import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.fml.common.registry.IForgeRegistryEntry;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.logging.log4j.Level;
-import tbsc.butter.api.loader.IHasCustomModel;
-import tbsc.butter.api.loader.IHasItemBlock;
+import tbsc.butter.api.ButterAPI;
+import tbsc.butter.api.loader.InstanceLoader;
 import tbsc.butter.api.loader.Register;
 
 import java.lang.reflect.Field;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -73,27 +75,8 @@ public class ButterLoader {
                 targetField.setAccessible(true);
                 // Get the instance the field has
                 Object instance = targetField.get(null);
-                // If instanceof IForgeRegisteryEntry
-                if (instance instanceof IForgeRegistryEntry) { // Can be registered using GameRegistry#register(IForgeRegistryEntry)
-                    // Register instance
-                    GameRegistry.register((IForgeRegistryEntry) instance);
-                    if (instance instanceof Block) {
-                        Block instanceBlock = (Block) instance;
-                        // If instanceof IHasItemBlock
-                        if (instance instanceof IHasItemBlock) {
-                            // Register the ItemBlock
-                            GameRegistry.register(((IHasItemBlock) instanceBlock).getItemBlock(), instanceBlock.getRegistryName());
-                        }
-                    }
-                }
-                // Run only if this is called on the client
-                if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
-                    // If has custom model
-                    if (instance instanceof IHasCustomModel) {
-                        // Load custom model
-                        ((IHasCustomModel) instance).loadCustomModel();
-                    }
-                }
+                // Register everything
+                registerInstance(instance);
                 // Deny access to the field
                 targetField.setAccessible(false);
             } catch (Exception e) { // Caught exception
@@ -117,27 +100,8 @@ public class ButterLoader {
                 }
                 // Create instance for the class
                 Object instance = targetClass.newInstance();
-                // If instanceof IForgeRegisteryEntry
-                if (instance instanceof IForgeRegistryEntry) { // Can be registered using GameRegistry#register(IForgeRegistryEntry)
-                    // Register instance
-                    GameRegistry.register((IForgeRegistryEntry) instance);
-                    if (instance instanceof Block) {
-                        Block instanceBlock = (Block) instance;
-                        // If instanceof IHasItemBlock
-                        if (instance instanceof IHasItemBlock) {
-                            // Register the ItemBlock
-                            GameRegistry.register(((IHasItemBlock) instanceBlock).getItemBlock(), instanceBlock.getRegistryName());
-                        }
-                    }
-                }
-                // Run only if this is called on the client
-                if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
-                    // If has custom model
-                    if (instance instanceof IHasCustomModel) {
-                        // Load custom model
-                        ((IHasCustomModel) instance).loadCustomModel();
-                    }
-                }
+                // Register everything
+                registerInstance(instance);
                 // Loop through the class' fields
                 for (Field field : targetClass.getFields()) {
                     // Allow access to field
@@ -155,6 +119,28 @@ public class ButterLoader {
                 FMLLog.log(Level.ERROR, e, "[Butter] An error occurred trying to register %s into the game", target.getClassName());
                 // Throw LoaderException with the exception caught
                 throw new LoaderException(e);
+            }
+        }
+    }
+
+    /**
+     * After finishing getting the data and creating instances, we can start actually registering
+     * the instance to the game.
+     * In order to allow me to have this separated from the big chunk of code above this method, the registration
+     * part is in this method to also prevent from rewriting it multiple times in
+     * {@link #scanForAnnotations(ASMDataTable, ModContainer)}.
+     * @param instance The instance to register
+     */
+    private static void registerInstance(Object instance) {
+        // Loop through instance loaders
+        for (Map.Entry<Class, InstanceLoader[]> entry : ButterAPI.getInstanceLoadersMap().entrySet()) {
+            // Make sure that the array of interfaces the instance has contains the interface
+            if (ArrayUtils.contains(instance.getClass().getInterfaces(), entry.getKey())) {
+                // Loop through the array of loaders
+                for (InstanceLoader loader : entry.getValue()) {
+                    // Run the instance loader
+                    loader.load(instance);
+                }
             }
         }
     }

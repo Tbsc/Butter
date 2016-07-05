@@ -17,12 +17,19 @@
 
 package tbsc.butter;
 
+import net.minecraft.block.Block;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import tbsc.butter.api.ButterAPI;
+import tbsc.butter.api.loader.IHasCustomModel;
+import tbsc.butter.api.loader.IHasItemBlock;
+import tbsc.butter.api.loader.IHasTileEntity;
 import tbsc.butter.proxy.IProxy;
+import tbsc.butter.util.Debug;
 
 @Mod(modid = Butter.MODID, version = Butter.VERSION)
 public class Butter {
@@ -39,6 +46,29 @@ public class Butter {
     @EventHandler
     public void onConstruction(FMLConstructionEvent event) {
         ButterAPI.registerModToButterLoader(MODID);
+        ButterAPI.registerInstanceLoader(IHasCustomModel.class, instance -> {
+            // Run only if this is called on the client
+            if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
+                Debug.log("[Butter] Running on client side, able to load custom model for instance %s", instance);
+                // Load custom model
+                ((IHasCustomModel) instance).loadCustomModel();
+            }
+        });
+        ButterAPI.registerInstanceLoader(IHasItemBlock.class, instance -> {
+            // Make sure it is a block
+            if (instance instanceof Block) {
+                Debug.log("[Butter] Registering %s item block", ((Block) instance).getRegistryName());
+                // Register the ItemBlock
+                GameRegistry.register(((IHasItemBlock) instance).getItemBlock(), ((Block) instance).getRegistryName());
+            }
+        });
+        ButterAPI.registerInstanceLoader(IHasTileEntity.class, instance -> {
+            Debug.log("[Butter] Registering tile entity for instance %s", instance);
+            // Get IHasTileEntity
+            IHasTileEntity instanceTile = (IHasTileEntity) instance;
+            // Register tile
+            GameRegistry.registerTileEntity(instanceTile.getTileClass(), instanceTile.getTileIdentifier());
+        });
     }
 
     @EventHandler
