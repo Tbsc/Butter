@@ -22,7 +22,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import tbsc.butter.api.loader.InstanceLoader;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -65,7 +65,7 @@ public class ButterAPI {
      * When an instance implements an interface, it checks in this map for the specified
      * {@link InstanceLoader}s to run for that interface.
      */
-    private static Map<Class, InstanceLoader[]> instanceLoaders = new HashMap<>();
+    private static Map<Class, InstanceLoader[]> instanceLoaders = new LinkedHashMap<>();
 
     /**
      * Register the specified instance loader the butter loader.

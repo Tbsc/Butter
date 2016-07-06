@@ -18,7 +18,6 @@
 package tbsc.butter.proxy;
 
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 
 /**
@@ -35,11 +34,6 @@ public class ServerProxy extends CommonProxy {
 
     @Override
     public void postInit(FMLPostInitializationEvent postInit) {
-
-    }
-
-    @Override
-    public void loadComplete(FMLLoadCompleteEvent loadComplete) {
 
     }
 
