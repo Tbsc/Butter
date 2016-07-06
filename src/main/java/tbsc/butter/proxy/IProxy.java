@@ -21,18 +21,20 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import tbsc.butter.api.IInitiable;
 
 /**
- * Proxy interface. Uses the {@link IInitiable} interface to create a predictable load cycle using API methods.
- * PreInit type parameter is {@link FMLPreInitializationEvent}, init is {@link FMLInitializationEvent}, post init
+ * Proxy interface. Creates a predictable load cycle.
+ * PreInit  is {@link FMLPreInitializationEvent}, init is {@link FMLInitializationEvent}, post init
  * is {@link FMLPostInitializationEvent} and load complete is {@link FMLLoadCompleteEvent}.
- *
- * Any additional proxy calls need to be added separately from {@link IInitiable}, as {@link IInitiable} only
- * takes care of load cycle calls.
  *
  * Created by tbsc on 03/07/2016.
  */
-public interface IProxy extends IInitiable<FMLPreInitializationEvent, FMLInitializationEvent, FMLPostInitializationEvent, FMLLoadCompleteEvent> {
+public interface IProxy {
+
+    void preInit(FMLPreInitializationEvent event);
+
+    void init(FMLInitializationEvent event);
+
+    void postInit(FMLPostInitializationEvent event);
 
 }

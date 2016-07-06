@@ -35,7 +35,7 @@ import tbsc.butter.util.Debug;
 public class Butter {
 
     public static final String MODID = "butter";
-    public static final String VERSION = "0.0.1.0";
+    public static final String VERSION = "@VERSION@";
 
     @SidedProxy(clientSide = "tbsc.butter.proxy.ClientProxy", serverSide = "tbsc.butter.proxy.ServerProxy")
     public static IProxy proxy;
@@ -84,11 +84,6 @@ public class Butter {
     @EventHandler
     public void postInit(FMLPostInitializationEvent event) {
         proxy.postInit(event);
-    }
-
-    @EventHandler
-    public void loadComplete(FMLLoadCompleteEvent event) {
-        proxy.loadComplete(event);
     }
 
 }
