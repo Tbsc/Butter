@@ -17,13 +17,15 @@
 
 package tbsc.butter.api;
 
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.FMLLog;
 import org.apache.commons.lang3.ArrayUtils;
 import tbsc.butter.api.loader.InstanceLoader;
+import tbsc.butter.api.loader.InstanceRegister;
+import tbsc.butter.loader.ButterLoader;
+import tbsc.butter.proxy.CommonProxy;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,26 +38,14 @@ public class ButterAPI {
     /* MODS TO BE LOADED */
 
     /**
-     * List of mods to be loaded by the butter loader
-     */
-    private static List<String> butterLoaders = new ArrayList<>();
-
-    /**
      * Adds the specified MODID to the list of mods that'll be loaded by the butter loader.
-     * This HAS be called on mod **CONSTRUCTION** stage (so the blocks and items can be loaded
+     * This HAS be called on mod pre init stage (so the blocks and items can be loaded
      * to the game on pre init stage).
      * @param modid The ID of the mod to register
      */
-    public static void registerModToButterLoader(String modid) {
-        butterLoaders.add(modid);
-        FMLLog.info("[Butter] Received loader registration request for mod %s", modid);
-    }
-
-    /**
-     * @return List of registered MODIDs to be loaded by the butter loader.
-     */
-    public static List<String> getRegisteredLoaderModIDs() {
-        return butterLoaders;
+    public static InstanceRegister loadMod(String modid) {
+        FMLLog.info("[Butter] Received loader registration request for mod %s, loading mod", modid);
+        return ButterLoader.scanForAnnotations(CommonProxy.asmData, FMLCommonHandler.instance().findContainerFor(modid));
     }
 
     /* LOADER INTERFACES */

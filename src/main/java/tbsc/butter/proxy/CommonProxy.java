@@ -17,10 +17,18 @@
 
 package tbsc.butter.proxy;
 
+import net.minecraft.block.Block;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.discovery.ASMDataTable;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import tbsc.butter.api.ButterAPI;
-import tbsc.butter.loader.ButterLoader;
+import tbsc.butter.api.loader.IHasCustomModel;
+import tbsc.butter.api.loader.IHasItemBlock;
+import tbsc.butter.api.loader.IHasTileEntity;
+import tbsc.butter.util.Debug;
+
+import static tbsc.butter.Butter.MODID;
 
 /**
  * Implementation class for everything that needs to be done on both sides.
@@ -31,17 +39,39 @@ import tbsc.butter.loader.ButterLoader;
  */
 public abstract class CommonProxy implements IProxy {
 
+    public static ASMDataTable asmData;
+
     /**
      * Pre init stage of Minecraft lifecycle events.
      * @param preInit Can be used when wanting to load stuff to specific instances on stage
      */
     @Override
     public void preInit(FMLPreInitializationEvent preInit) {
-        // Loop all registered mods
-        for (String modid : ButterAPI.getRegisteredLoaderModIDs()) {
-            // Load all classes of that mod from ASM data and register them
-            ButterLoader.scanForAnnotations(preInit.getAsmData(), FMLCommonHandler.instance().findContainerFor(modid));
-        }
+        asmData = preInit.getAsmData();
+        ButterAPI.registerInstanceLoader(IHasItemBlock.class, instance -> {
+            // Make sure it is a block
+            if (instance instanceof Block) {
+                Debug.log("[Butter] Registering %s item block", ((Block) instance).getRegistryName());
+                // Register the ItemBlock
+                GameRegistry.register(((IHasItemBlock) instance).getItemBlock(), ((Block) instance).getRegistryName());
+            }
+        });
+        ButterAPI.registerInstanceLoader(IHasCustomModel.class, instance -> {
+            // Run only if this is called on the client
+            if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
+                Debug.log("[Butter] Running on client side, able to load custom model for instance %s", instance);
+                // Load custom model
+                ((IHasCustomModel) instance).loadCustomModel();
+            }
+        });
+        ButterAPI.registerInstanceLoader(IHasTileEntity.class, instance -> {
+            Debug.log("[Butter] Registering tile entity for instance %s", instance);
+            // Get IHasTileEntity
+            IHasTileEntity instanceTile = (IHasTileEntity) instance;
+            // Register tile
+            GameRegistry.registerTileEntity(instanceTile.getTileClass(), instanceTile.getTileIdentifier());
+        });
+        ButterAPI.loadMod(MODID).register();
     }
 
 }
