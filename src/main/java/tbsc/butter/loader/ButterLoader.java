@@ -164,10 +164,10 @@ public class ButterLoader {
     private static InstanceRegister.Instance registerInstance(Object instance) {
         return () -> {
             // Loop through instance loaders
-            for (Map.Entry<Class, InstanceLoader[]> entry : ButterAPI.getInstanceLoadersMap().entrySet()) {
+            for (Map.Entry<Class<?>, InstanceLoader[]> entry : ButterAPI.getInstanceLoadersMap().entrySet()) {
                 Debug.log("Looping, checking interface %s for instance %s", entry.getKey(), instance);
                 // Make sure that the array of interfaces the instance has contains the interface
-                if (ArrayUtils.contains(instance.getClass().getInterfaces(), entry.getKey())) {
+                if (entry.getKey().isAssignableFrom(instance.getClass())) {
                     Debug.log("Instance %s implements interface %s", entry.getKey().getName(), instance.getClass().getName());
                     // Loop through the array of loaders
                     for (InstanceLoader loader : entry.getValue()) {

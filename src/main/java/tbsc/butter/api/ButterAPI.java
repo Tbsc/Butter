@@ -55,7 +55,7 @@ public class ButterAPI {
      * When an instance implements an interface, it checks in this map for the specified
      * {@link InstanceLoader}s to run for that interface.
      */
-    private static Map<Class, InstanceLoader[]> instanceLoaders = new LinkedHashMap<>();
+    private static Map<Class<?>, InstanceLoader[]> instanceLoaders = new LinkedHashMap<>();
 
     /**
      * Register the specified instance loader the butter loader.
@@ -63,7 +63,7 @@ public class ButterAPI {
      *                       to implement for this instance loader to run.
      * @param loader The instance loader to run for the interface specified
      */
-    public static void registerInstanceLoader(Class interfaceClass, InstanceLoader loader) {
+    public static void registerInstanceLoader(Class<?> interfaceClass, InstanceLoader loader) {
         if (instanceLoaders.containsKey(interfaceClass)) {
             instanceLoaders.put(interfaceClass, ArrayUtils.add(instanceLoaders.get(interfaceClass), loader));
         } else {
@@ -74,7 +74,7 @@ public class ButterAPI {
         FMLLog.info("[Butter] Received instance loader %s registration request for interface class %s", interfaceClass.getSimpleName(), loader.getClass().getSimpleName());
     }
 
-    public static Map<Class, InstanceLoader[]> getInstanceLoadersMap() {
+    public static Map<Class<?>, InstanceLoader[]> getInstanceLoadersMap() {
         return instanceLoaders;
     }
 
