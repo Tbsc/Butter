@@ -19,10 +19,10 @@ package tbsc.butter.api;
 
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.FMLLog;
+import net.minecraftforge.fml.common.discovery.ASMDataTable;
 import org.apache.commons.lang3.ArrayUtils;
 import tbsc.butter.api.loader.InstanceLoader;
 import tbsc.butter.loader.ButterLoader;
-import tbsc.butter.proxy.CommonProxy;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -40,11 +40,12 @@ public class ButterAPI {
      * Adds the specified MODID to the list of mods that'll be loaded by the butter loader.
      * This HAS be called on mod pre init stage (so the blocks and items can be loaded
      * to the game on pre init stage).
+     * @param asmData ASM data, gotten from the pre init event
      * @param modid The ID of the mod to register
      */
-    public static void registerModToButterLoader(String modid) {
+    public static void registerModToButterLoader(ASMDataTable asmData, String modid) {
         FMLLog.info("[Butter] Received loader registration request for mod %s, loading mod", modid);
-        ButterLoader.scanForAnnotations(CommonProxy.asmData, FMLCommonHandler.instance().findContainerFor(modid));
+        ButterLoader.scanForAnnotations(asmData, FMLCommonHandler.instance().findContainerFor(modid));
     }
 
     /* LOADER INTERFACES */

@@ -19,7 +19,6 @@ package tbsc.butter.proxy;
 
 import net.minecraft.block.Block;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.discovery.ASMDataTable;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import tbsc.butter.api.ButterAPI;
@@ -39,15 +38,12 @@ import static tbsc.butter.Butter.MODID;
  */
 public abstract class CommonProxy implements IProxy {
 
-    public static ASMDataTable asmData;
-
     /**
      * Pre init stage of Minecraft lifecycle events.
      * @param preInit Can be used when wanting to load stuff to specific instances on stage
      */
     @Override
     public void preInit(FMLPreInitializationEvent preInit) {
-        asmData = preInit.getAsmData();
         ButterAPI.registerInstanceLoader(IHasItemBlock.class, instance -> {
             // Make sure it is a block
             if (instance instanceof Block) {
@@ -71,7 +67,7 @@ public abstract class CommonProxy implements IProxy {
             // Register tile
             GameRegistry.registerTileEntity(instanceTile.getTileClass(), instanceTile.getTileIdentifier());
         });
-        ButterAPI.registerModToButterLoader(MODID);
+        ButterAPI.registerModToButterLoader(preInit.getAsmData(), MODID);
     }
 
 }
