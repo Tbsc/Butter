@@ -71,7 +71,7 @@ public abstract class CommonProxy implements IProxy {
             // Register tile
             GameRegistry.registerTileEntity(instanceTile.getTileClass(), instanceTile.getTileIdentifier());
         });
-        ButterAPI.loadMod(MODID).register();
+        ButterAPI.registerModToButterLoader(MODID);
     }
 
 }

@@ -21,7 +21,6 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.FMLLog;
 import org.apache.commons.lang3.ArrayUtils;
 import tbsc.butter.api.loader.InstanceLoader;
-import tbsc.butter.api.loader.InstanceRegister;
 import tbsc.butter.loader.ButterLoader;
 import tbsc.butter.proxy.CommonProxy;
 
@@ -43,9 +42,9 @@ public class ButterAPI {
      * to the game on pre init stage).
      * @param modid The ID of the mod to register
      */
-    public static InstanceRegister loadMod(String modid) {
+    public static void registerModToButterLoader(String modid) {
         FMLLog.info("[Butter] Received loader registration request for mod %s, loading mod", modid);
-        return ButterLoader.scanForAnnotations(CommonProxy.asmData, FMLCommonHandler.instance().findContainerFor(modid));
+        ButterLoader.scanForAnnotations(CommonProxy.asmData, FMLCommonHandler.instance().findContainerFor(modid));
     }
 
     /* LOADER INTERFACES */
@@ -59,6 +58,9 @@ public class ButterAPI {
 
     /**
      * Register the specified instance loader the butter loader.
+     * MUST be done on pre init, or before. If an instance loader is in another mod and you
+     * need it, then tell Forge you depend on it, so the instance loader will be loaded before your
+     * mod.
      * @param interfaceClass When an instance implements interfaces, what interface does the instance need
      *                       to implement for this instance loader to run.
      * @param loader The instance loader to run for the interface specified

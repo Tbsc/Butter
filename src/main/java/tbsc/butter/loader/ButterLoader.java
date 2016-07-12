@@ -17,16 +17,17 @@
 
 package tbsc.butter.loader;
 
-import net.minecraftforge.fml.common.*;
+import net.minecraftforge.fml.common.FMLLog;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.LoaderException;
+import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.discovery.ASMDataTable;
 import net.minecraftforge.fml.common.discovery.ASMDataTable.ASMData;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.common.registry.IForgeRegistryEntry;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.logging.log4j.Level;
 import tbsc.butter.api.ButterAPI;
 import tbsc.butter.api.loader.InstanceLoader;
-import tbsc.butter.api.loader.InstanceRegister;
 import tbsc.butter.api.loader.Register;
 import tbsc.butter.util.Debug;
 
@@ -49,12 +50,8 @@ public class ButterLoader {
      *
      * @param data ASM data table, contains ASM information for annotations and other stuff
      * @param mod  The mod to check for
-     * @return InstanceLoader for the mod loaded to run
      */
-    public static InstanceRegister scanForAnnotations(ASMDataTable data, ModContainer mod) {
-        // Runnable to return
-        InstanceRegister.Instance[] returnRunnable = new InstanceRegister.Instance[] {};
-
+    public static void scanForAnnotations(ASMDataTable data, ModContainer mod) {
         // Log
         FMLLog.fine("[Butter] Attempting to register objects for mod %s", mod.getModId());
         // Get all targets (fields) annotated with @Register.Instance
@@ -85,15 +82,25 @@ public class ButterLoader {
                 if (instance == null) {
                     throw new NullPointerException("[Techy] Cannot register null object to the game");
                 }
-                // Normal register
-                ArrayUtils.add(returnRunnable, () -> {
-                    // Normal register
-                    if (instance instanceof IForgeRegistryEntry) {
-                        GameRegistry.register((IForgeRegistryEntry) instance);
-                    }
-                });
+                // Check if can be registered normally
+                if (instance instanceof IForgeRegistryEntry) {
+                    // Set registry name to be of the mod that own the class USING REFLECTION.
+                    // Forge doesn't allow me to change the registry name after it has been set.
+                    // The problem is that otherwise the mod that owns the block is butter, and
+                    // I don't want that. To go around that limitation, I'll use reflection to
+                    // change the resource domain.
+                    Field resourceDomain = ((IForgeRegistryEntry) instance).getRegistryName().getClass().getDeclaredField("resourceDomain");
+                    // Allow access
+                    resourceDomain.setAccessible(true);
+                    // Change the value of the resource domain to the mod owning the object
+                    resourceDomain.set(((IForgeRegistryEntry) instance).getRegistryName(), mod.getModId());
+                    // Deny access
+                    resourceDomain.setAccessible(false);
+                    // Register to the game
+                    GameRegistry.register((IForgeRegistryEntry) instance);
+                }
                 // Register everything
-                ArrayUtils.add(returnRunnable, registerInstance(instance));
+                registerInstance(instance);
                 // Deny access to the field
                 targetField.setAccessible(false);
             } catch (Exception e) { // Caught exception
@@ -121,15 +128,25 @@ public class ButterLoader {
                 if (instance == null) {
                     throw new NullPointerException("[Techy] Cannot register null object to the game");
                 }
-                // Normal register
-                ArrayUtils.add(returnRunnable, () -> {
-                    // Normal register
-                    if (instance instanceof IForgeRegistryEntry) {
-                        GameRegistry.register((IForgeRegistryEntry) instance);
-                    }
-                });
+                // Check if can be registered normaly
+                if (instance instanceof IForgeRegistryEntry) {
+                    // Set registry name to be of the mod that own the class USING REFLECTION.
+                    // Forge doesn't allow me to change the registry name after it has been set.
+                    // The problem is that otherwise the mod that owns the block is butter, and
+                    // I don't want that. To go around that limitation, I'll use reflection to
+                    // change the resource domain.
+                    Field resourceDomain = ((IForgeRegistryEntry) instance).getRegistryName().getClass().getDeclaredField("resourceDomain");
+                    // Allow access
+                    resourceDomain.setAccessible(true);
+                    // Change the value of the resource domain to the mod owning the object
+                    resourceDomain.set(((IForgeRegistryEntry) instance).getRegistryName(), mod.getModId());
+                    // Deny access
+                    resourceDomain.setAccessible(false);
+                    // Register to the game
+                    GameRegistry.register((IForgeRegistryEntry) instance);
+                }
                 // Register everything
-                ArrayUtils.add(returnRunnable, registerInstance(instance));
+                registerInstance(instance);
                 // Loop through the class' fields
                 for (Field field : targetClass.getFields()) {
                     // Allow access to field
@@ -149,8 +166,6 @@ public class ButterLoader {
                 throw new LoaderException(e);
             }
         }
-
-        return new InstanceRegister(returnRunnable);
     }
 
     /**
@@ -161,23 +176,20 @@ public class ButterLoader {
      * {@link #scanForAnnotations(ASMDataTable, ModContainer)}.
      * @param instance The instance to register
      */
-    private static InstanceRegister.Instance registerInstance(Object instance) {
-        return () -> {
-            // Loop through instance loaders
-            for (Map.Entry<Class<?>, InstanceLoader[]> entry : ButterAPI.getInstanceLoadersMap().entrySet()) {
-                Debug.log("Looping, checking interface %s for instance %s", entry.getKey(), instance);
-                // Make sure that the array of interfaces the instance has contains the interface
-                if (entry.getKey().isAssignableFrom(instance.getClass())) {
-                    Debug.log("Instance %s implements interface %s", entry.getKey().getName(), instance.getClass().getName());
-                    // Loop through the array of loaders
-                    for (InstanceLoader loader : entry.getValue()) {
-                        // Run the instance loader
-                        loader.load(instance);
-                    }
+    private static void registerInstance(Object instance) {
+        // Loop through instance loaders
+        for (Map.Entry<Class<?>, InstanceLoader[]> entry : ButterAPI.getInstanceLoadersMap().entrySet()) {
+            Debug.log("Looping, checking interface %s for instance %s", entry.getKey(), instance);
+            // Make sure that the array of interfaces the instance has contains the interface
+            if (entry.getKey().isAssignableFrom(instance.getClass())) {
+                Debug.log("Instance %s implements interface %s", entry.getKey().getName(), instance.getClass().getName());
+                // Loop through the array of loaders
+                for (InstanceLoader loader : entry.getValue()) {
+                    // Run the instance loader
+                    loader.load(instance);
                 }
             }
-        };
-
+        }
     }
 
 }
